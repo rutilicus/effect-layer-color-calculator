@@ -1,0 +1,26 @@
+.functions {
+  display: flex;
+  align-items: center;
+}
+
+.functions > div {
+  display: flex;
+  padding: 10px;
+}
+
+.main {
+  display: flex;
+}
+
+.colorPickers {
+  width: 250px;
+}
+
+p {
+  margin: 0;
+  padding: 0 10px;
+}
+
+.colorPickers > p {
+  padding: 5px 10px;
+}
