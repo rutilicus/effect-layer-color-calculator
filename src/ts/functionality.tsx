@@ -1,7 +1,10 @@
 import React from "react"
 
+import { LayerEffect } from "./constants"
+
 interface FunctionalityProps {
     handleImageFileSet(e: React.ChangeEvent<HTMLInputElement>): void;
+    onEffectChange(e: React.ChangeEvent<HTMLSelectElement>): void;
 }
 
 export class Functionality extends React.Component<FunctionalityProps> {
@@ -10,9 +13,9 @@ export class Functionality extends React.Component<FunctionalityProps> {
             <div className="functions">
                 <div>
                     <label>レイヤー効果</label>
-                    <select name="layerEffects" id="layerEffectsSelect">
-                        <option value="multiply">乗算</option>
-                        <option value="screen">スクリーン</option>
+                    <select name="layerEffects" id="layerEffectsSelect" onChange={(e) => this.props.onEffectChange(e)}>
+                        <option value={LayerEffect.EFFECT_MULTIPLY}>乗算</option>
+                        <option value={LayerEffect.EFFECT_SCREEN}>スクリーン</option>
                     </select>
                 </div>
                 <div>

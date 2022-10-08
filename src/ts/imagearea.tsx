@@ -6,6 +6,10 @@ interface ImageAreaProps {
 
 export class ImageArea extends React.Component<ImageAreaProps> {
     render(): React.ReactNode {
-        return <img className="colorPickImage" src={this.props.imageData}/>
+        return (
+            <div className="colorPickImage">
+                <img src={this.props.imageData}/>
+            </div>
+        );
     }
 }
