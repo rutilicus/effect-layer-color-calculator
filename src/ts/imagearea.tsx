@@ -1,14 +1,14 @@
 import React from "react"
 
 interface ImageAreaProps {
-    imageData?: string;
+    onImageClick(e: React.MouseEvent<HTMLCanvasElement>): void;
 }
 
 export class ImageArea extends React.Component<ImageAreaProps> {
     render(): React.ReactNode {
         return (
             <div className="colorPickImage">
-                <img src={this.props.imageData}/>
+                <canvas id="colorPickImageCanvas" onClick={this.props.onImageClick}/>
             </div>
         );
     }

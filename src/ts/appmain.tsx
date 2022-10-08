@@ -5,17 +5,17 @@ import { ColorResult, RGBColor } from "react-color"
 import { Functionality } from "./functionality"
 import { ColorPickers } from "./colorpickers"
 import { ImageArea } from "./imagearea"
-import { LayerEffect } from "./constants"
+import { LayerEffect, SettingLayer } from "./constants"
 
 interface AppMainProps {
 
 }
 interface AppMainState {
-    imageData: string;
     baseColor: RGBColor;
     effectColor: RGBColor;
     resultColor: RGBColor;
     layerEffect: LayerEffect;
+    settingLayer: SettingLayer;
 }
 
 const colorWhite: RGBColor = {r: 255, g: 255, b: 255};
@@ -24,25 +24,22 @@ class AppMain extends React.Component<AppMainProps, AppMainState> {
     constructor(props) {
         super(props);
 
-        this.handleImageFileSet = this.handleImageFileSet.bind(this);
+        this.setBaseColor = this.setBaseColor.bind(this);
+        this.setResultColor = this.setResultColor.bind(this);
         this.onBaseColorChange = this.onBaseColorChange.bind(this);
         this.onResultColorChange = this.onResultColorChange.bind(this);
         this.onEffectChange = this.onEffectChange.bind(this);
+        this.onLayerChange = this.onLayerChange.bind(this);
+        this.setCurrentColor = this.setCurrentColor.bind(this);
+        this.onImageClick = this.onImageClick.bind(this);
 
         this.state = {
-            imageData: "",
             baseColor: colorWhite,
             effectColor: colorWhite,
             resultColor: colorWhite,
-            layerEffect: LayerEffect.EFFECT_MULTIPLY
+            layerEffect: LayerEffect.EFFECT_MULTIPLY,
+            settingLayer: SettingLayer.LAYER_BASE
         };
-    }
-colorPickImage
-    handleImageFileSet(e: React.ChangeEvent<HTMLInputElement>) {
-        const files = e.target.files;
-        if (files && files.length > 0) {
-            this.setState({ imageData: window.URL.createObjectURL(files[0])});
-        }
     }
 
     calcurateEffectColor(baseColor: RGBColor, resultColor: RGBColor, effect: LayerEffect): RGBColor {
@@ -68,20 +65,26 @@ colorPickImage
         return res;
     }
 
-    onBaseColorChange(color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) {
-        const baseColor = color.rgb;
+    setBaseColor(color: RGBColor) {
         this.setState({
-            baseColor: baseColor,
-            effectColor: this.calcurateEffectColor(baseColor, this.state.resultColor, this.state.layerEffect)
+            baseColor: color,
+            effectColor: this.calcurateEffectColor(color, this.state.resultColor, this.state.layerEffect)
         });
     }
 
-    onResultColorChange(color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) {
-        const resultColor = color.rgb;
+    setResultColor(color: RGBColor) {
         this.setState({
-            resultColor: resultColor,
-            effectColor: this.calcurateEffectColor(this.state.baseColor, resultColor, this.state.layerEffect)
+            resultColor: color,
+            effectColor: this.calcurateEffectColor(this.state.baseColor, color, this.state.layerEffect)
         });
+    }
+
+    onBaseColorChange(color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) {
+        this.setBaseColor(color.rgb);
+    }
+
+    onResultColorChange(color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) {
+        this.setResultColor(color.rgb);
     }
 
     onEffectChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -92,13 +95,46 @@ colorPickImage
         });
     }
 
+    onLayerChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const layer: SettingLayer = parseInt(e.target.value);
+        this.setState({ settingLayer: layer });
+    }
+
+    setCurrentColor(color: RGBColor) {
+        switch (this.state.settingLayer) {
+            case SettingLayer.LAYER_BASE:
+                this.setBaseColor(color);
+                break;
+            case SettingLayer.LAYER_RESULT:
+                this.setResultColor(color);
+                break;
+        }
+    }
+
+    onImageClick(e: React.MouseEvent<HTMLCanvasElement>) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const canvas = e.currentTarget as HTMLCanvasElement;
+        const context = canvas.getContext("2d");
+        const imageData = context?.getImageData(x, y, 1, 1);
+
+        const r = imageData?.data[0];
+        const g = imageData?.data[1];
+        const b = imageData?.data[2];
+        if (r && g && b) {
+            this.setCurrentColor({r: r, g: g, b: b});
+        }
+    }
+
     render(): React.ReactNode {
         return (
             <div>
                 <div className="header">
-                    <Functionality
-                        handleImageFileSet={this.handleImageFileSet}
-                        onEffectChange={this.onEffectChange}/>
+                    <Functionality 
+                        onEffectChange={this.onEffectChange}
+                        onLayerChange={this.onLayerChange}/>
                 </div>
                 <div className="main">
                     <ColorPickers 
@@ -107,7 +143,7 @@ colorPickImage
                         effectColor={this.state.effectColor}
                         onBaseColorChange={this.onBaseColorChange}
                         onResultColorChange={this.onResultColorChange}/>
-                    <ImageArea imageData={this.state.imageData}/>
+                    <ImageArea onImageClick={this.onImageClick}/>
                 </div>
             </div>
         );
