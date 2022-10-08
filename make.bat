@@ -1,2 +1,2 @@
 call npx webpack
-xcopy /e /y src\static doc
+xcopy /e /y src\static docs
